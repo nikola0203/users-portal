@@ -11,70 +11,57 @@ include '../template-parts/header.php';
 $user = new User();
 
 if ( isset( $_POST['submit'] ) ) {
-  $firstName    = $_POST['first-name'];
-  $lastName     = $_POST['last-name'];
-  $about        = $_POST['about'];
-  $public       = $_POST['profile-visibility'];
-  $profileImage = $_FILES['profile-image'];
-  $user->upload_file( $profileImage );
-  $user->update_user_data( $firstName, $lastName, $about, $public );
-}
+  
+  foreach ( $_POST as $key => $value ) {
 
-$userData = $user->get_user_data();
-$get_user_image = $user->get_user_image_path();
+    $user->update_user_status( $value, $key );
+
+  }
+
+}
 
 ?>
 
-<div class="container mt-3">
-  <h1 class="text-center">ADMIN PROFILE SETTINGS</h1>
+<div class="container">
   <div class="row justify-content-center">
-    <div class="col-lg-6">
-      <form method="post" enctype="multipart/form-data">
-        <div class="form-group row">
-          <label for="first-name" class="col-sm-3 col-form-label">First Name</label>
-          <div class="col-sm-9">
-            <input type="text" name="first-name" value="<?php echo $userData['first_name']; ?>" class="form-control" id="first-name" placeholder="First Name">
-          </div>
-        </div>
-        <div class="form-group row">
-          <label for="last-name" class="col-sm-3 col-form-label">Last Name</label>
-          <div class="col-sm-9">
-            <input type="text" name="last-name" value="<?php echo $userData['last_name']; ?>" class="form-control" id="last-name" placeholder="Last Name">
-          </div>
-        </div>
-        <div class="form-group row">
-          <label for="user-textarea" class="col-sm-3 col-form-label">About me</label>
-          <div class="col-sm-9">
-            <textarea name="about" class="form-control" id="user-textarea" rows="6"><?php echo $userData['about']; ?></textarea>
-          </div>
-        </div>
-        <div class="form-group row">
-          <label for="profile-image" class="col-sm-3 col-form-label">Profile image</label>
-          <div class="col-sm-9">
-            <div class="profile-image">
-              <img src="<?php echo $get_user_image; ?>">
-            </div>
-            <input type="file" name="profile-image" class="form-control-file" id="profile-image">
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-sm-3">Profile</div>
-          <div class="col-sm-9">
-            <div class="custom-control custom-radio custom-control-inline">
-              <input type="radio" id="public-profile" name="profile-visibility" value="1" class="custom-control-input" <?php echo ( 1 == $userData['public'] ? 'checked' : ''); ?>>
-              <label class="custom-control-label" for="public-profile">Public</label>
-            </div>
-            <div class="custom-control custom-radio custom-control-inline">
-              <input type="radio" id="private-profile" name="profile-visibility" value="0" class="custom-control-input" <?php echo ( 0 == $userData['public'] ? 'checked' : ''); ?>>
-              <label class="custom-control-label" for="private-profile">Private</label>
-            </div>
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-sm-9 offset-sm-3">
-            <button type="submit" name="submit" class="btn btn-primary">Update</button>
-          </div>
-        </div>
+    <div class="col-lg-8">
+      <form method="post">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">User ID</th>
+              <th scope="col">First Name</th>
+              <th scope="col">Last Name</th>
+              <th scope="col">User Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            $users_data = $user->get_dashboard_users();
+            foreach ( $users_data as $user_data ) :
+              ?>
+              <tr>
+                <th scope="row"><?php echo $user_data['id']; ?></th>
+                <td><?php echo $user_data['first_name']; ?></td>
+                <td><?php echo $user_data['last_name']; ?></td>
+                <td>
+                  <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="user-<?php echo $user_data['id'] ?>-status-enabled" name="<?php echo $user_data['id'] ?>" value="enabled" class="custom-control-input" <?php echo ( 'enabled' == $user_data['status'] ? 'checked' : ''); ?>>
+                    <label class="custom-control-label" for="user-<?php echo $user_data['id'] ?>-status-enabled">Enable</label>
+                  </div>
+                  <div class="custom-control custom-radio custom-control-inline">
+                    <input type="radio" id="user-<?php echo $user_data['id'] ?>-status-disabled" name="<?php echo $user_data['id'] ?>" value="disabled" class="custom-control-input" <?php echo ( 'disabled' == $user_data['status'] ? 'checked' : ''); ?>>
+                    <label class="custom-control-label" for="user-<?php echo $user_data['id'] ?>-status-disabled">Disable</label>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+              <?php
+            endforeach;
+            ?>
+          </tbody> 
+        </table>
+        <button type="submit" name="submit" class="btn btn-primary">Save changes</button>
       </form>
     </div>
   </div>

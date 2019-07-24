@@ -21,12 +21,12 @@ if ( isset( $_POST['submit'] ) ) {
 }
 
 $userData = $user->get_user_data();
-$get_user_image = $user->get_user_image_path();
+$get_user_image = $user->get_profile_image_path();
 
 ?>
 
 <div class="container mt-3">
-  <h1 class="text-center">PROFILE SETTINGS</h1>
+  <h1 class="text-center">Profile Settings</h1>
   <div class="row justify-content-center">
     <div class="col-lg-6">
       <form method="post" enctype="multipart/form-data">

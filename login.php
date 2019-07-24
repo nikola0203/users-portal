@@ -10,23 +10,48 @@ include 'template-parts/header.php';
 
 $user = new User();
 
+?>
+
+<h1 class="text-center">Login</h1>
+
+<?php
+
 if ( isset ( $_POST['submit'] ) ) {
   $username = $_POST['username'];
   $password = $_POST['password'];
   $login = $user->login( $username, $password );
   if ( $login ) {
     // Login success.
-    header( "location:index" );
+    header( "location:profile" );
   } else {
     // Login failed.
-    echo 'Wrong username or password';
+    ?>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="alert alert-danger">Wrong username or password.</div>
+        </div>
+      </div>
+    </div>
+    <?php
   }
+}
+
+if ( $_GET['action'] == 'email_verified' ) {
+  ?>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="alert alert-success">Successfully registered!</div>
+      </div>
+    </div>
+  </div>
+  <?php
 }
 
 ?>
 
 <div class="container mt-3">
-  <h1 class="text-center">LOGIN</h1>
   <div class="row justify-content-center">
     <div class="col-lg-6">
       <form method="post">

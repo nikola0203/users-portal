@@ -8,6 +8,12 @@
  */
 include '../template-parts/header.php';
 
+?>
+
+<h1 class="text-center">Admin login</h1>
+
+<?php
+
 $user = new User();
 
 if ( isset ( $_POST['submit'] ) ) {
@@ -19,13 +25,20 @@ if ( isset ( $_POST['submit'] ) ) {
     header( "location:profile" );
   } else {
     // Login failed.
-    echo 'Wrong username or password';
+    ?>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-6">
+          <div class="alert alert-danger">Wrong username or password.</div>
+        </div>
+      </div>
+    </div>
+    <?php
   }
 }
 ?>
 
 <div class="container mt-3">
-  <h1 class="text-center">ADMIN LOGIN</h1>
   <div class="row justify-content-center">
     <div class="col-lg-6">
       <form method="post">

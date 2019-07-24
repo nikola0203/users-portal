@@ -25,11 +25,6 @@ class User {
 	 */
 	public function register( $firstname, $lastname, $username, $password, $email, $access_code, $user_role = 'default' ){
 
-		// Checking if the username or email is in the database.
-		if ( $this->is_user_exist( $username, $email ) ) {
-			return false;
-		}
-
 		$query = "INSERT INTO users SET first_name=:firstname, last_name=:lastname, username=:username, password=:password, email=:email, access_code=:access_code, user_role=:user_role";
 		
 		$stmt = $this->db->prepare( $query );
@@ -75,25 +70,23 @@ class User {
 	 */
 	public function login( $username, $password ) {
 		
-		$query = "SELECT id, password FROM users WHERE username='$username'";
+		$query = "SELECT id, password, verified_status FROM users WHERE username='$username'";
 		
 		$stmt = $this->db->prepare( $query );
 		
 		$stmt->execute();
 
 		$user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		$verified_status = $user_data['verified_status'];
 
-		if ( $stmt->rowCount() > 0 ) {
+		if ( $verified_status == 1 && password_verify( $password, $user_data['password'] ) ) {
 
-			if ( password_verify( $password, $user_data['password'] ) ) {
-				
-				$_SESSION['login'] = true;
-	
-				$_SESSION['id'] = $user_data['id'];
-	
-				return true;
+			$_SESSION['login'] = true;
 
-			}
+			$_SESSION['id'] = $user_data['id'];
+
+			return true;
 
 		} else {
 			
@@ -130,6 +123,25 @@ class User {
 		unset( $_SESSION );
 		
 		session_destroy();
+
+	}
+
+	/**
+	 * 
+	 * Return true if user is logged in.
+	 * 
+	 * @return bool
+	 * 
+	 */
+	public function is_user_logged_in() {
+		
+		if ( $_SESSION['login'] ) {
+
+			return true;
+
+		}
+
+		return false;
 
 	}
 
@@ -205,6 +217,42 @@ class User {
 			return false;
 			
 		}
+
+	}
+
+	/**
+	 * 
+	 * Update user status.
+	 * 
+	 * @param string $status
+	 * @param string $userID
+	 * @return bool
+	 * 
+	 */
+	public function update_user_status( $status, $userID ) {
+		
+			$query = "UPDATE users SET status=:status WHERE id=:userID AND status<>:status";
+
+			$stmt = $this->db->prepare( $query );
+			
+			$status = htmlspecialchars( strip_tags( $status ) );
+			$userID = htmlspecialchars( strip_tags( $userID ) );
+			
+			$stmt->bindValue( ":status", $status );
+			$stmt->bindValue( ":userID", $userID );
+
+			// $stmt->execute();
+
+			if ( $stmt->execute() ) {
+				
+				return true;
+				
+			} else {
+
+				return false;
+
+			}
+			
 
 	}
 
@@ -327,7 +375,7 @@ class User {
 	 * @return string $user_image_path
 	 * 
 	 */
-	public function get_user_image_path() {
+	public function get_profile_image_path() {
 		
 		if ( isset( $_SESSION['id'] ) ) {
 			
@@ -563,6 +611,83 @@ class User {
 		} else {
 
 			return false;
+
+		}
+
+	}
+
+	/**
+	 * 
+	 * Get user data.
+	 * 
+	 * @return array $user_data
+	 * 
+	 */
+	public function get_users() {
+
+		if ( $this->is_user_logged_in() ) {
+			
+			$query = "SELECT * FROM users WHERE verified_status=1 AND status='enabled' AND user_role='default'";
+
+		} else {
+
+			$query = "SELECT * FROM users WHERE verified_status=1 AND status='enabled' AND user_role='default' AND public=1";
+
+		}
+
+		$stmt = $this->db->prepare( $query );
+	
+		$stmt->execute();
+
+		$user_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		return $user_data;
+
+	}
+
+	/**
+	 * 
+	 * Get user data.
+	 * 
+	 * @return array $user_data
+	 * 
+	 */
+		public function get_dashboard_users() {
+			
+			$query = "SELECT * FROM users WHERE user_role='default'";
+
+			$stmt = $this->db->prepare( $query );
+		
+			$stmt->execute();
+
+			$user_data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			return $user_data;
+
+		}
+
+	/**
+	 * 
+	 * Get user profile image.
+	 * 
+	 * @return string $user_image_path
+	 * 
+	 */
+	public function get_user_image_path( $userID ) {
+		
+		if ( $userID ) {
+			
+			$query = "SELECT profile_image FROM users WHERE id='$userID'";
+
+			$stmt = $this->db->prepare( $query );
+		
+			$stmt->execute();
+
+			$profile_image_name = $stmt->fetch(PDO::FETCH_ASSOC);
+
+			$user_image_path = '../uploads/' . $userID . '/' . $profile_image_name['profile_image'] . '';
+	
+			return $user_image_path;
 
 		}
 

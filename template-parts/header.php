@@ -12,23 +12,10 @@ include ABSPATH . 'inc/user.php';
 
 $user = new User();
 
-// $userID = $_SESSION['id'];
-
 if ( isset( $_GET['q'] ) ) {
   $user->logout();
   header( "location:login" );
 }
-
-// if ( $_SESSION['login'] ) {
-//   echo "USER IS LOGGED IN";
-// }
-
-// var_dump($_SESSION);
-
-// echo "<pre>";
-// $userData = $user->get_user_data();
-// print_r($userData['first_name']);
-// echo "</pre>";
 
 ?>
 
@@ -43,7 +30,7 @@ if ( isset( $_GET['q'] ) ) {
 </head>
 
 <header>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light">
     <div class="container">
       <a class="navbar-brand" href="/">Users Portal</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,28 +38,25 @@ if ( isset( $_GET['q'] ) ) {
       </button>
       <div class="collapse navbar-collapse" id="navbarNavDropdown">
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item active">
+          <?php if ( ! $user->is_user_logged_in() ) : ?>
+          <li class="nav-item">
             <a class="nav-link" href="/register">Register</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="/login">Login</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/profile">Profile</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="?q=logout">Logout</a>
-          </li>
+          <?php endif; ?>
+          <?php if ( $user->is_user_logged_in() ) : ?>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Dropdown link
+              <img src="<?php echo $user->get_profile_image_path(); ?>" class="rounded-circle menu-user-icon" alt="">
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
+              <a class="dropdown-item" href="/profile">Profile</a>
+              <a class="dropdown-item" href="?q=logout">Logout</a>
             </div>
           </li>
+          <?php endif; ?>
         </ul>
       </div>
     </div>
@@ -80,3 +64,5 @@ if ( isset( $_GET['q'] ) ) {
 </header>
 
 <body>
+
+<div class="site-body">

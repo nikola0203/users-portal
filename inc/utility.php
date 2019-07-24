@@ -85,15 +85,11 @@ class Utility {
 
     if( $mail->send() ) {
 
-      echo "<div class='alert alert-success'>
-        Verification link was sent to your email. Click that link to login.
-      </div>";
+      return true;
 
     } else {
 
-      echo "<div class='alert alert-danger'>
-        User was created but unable to send verification email. Please contact admin.
-      </div>";
+      return false;
 
     }
 
